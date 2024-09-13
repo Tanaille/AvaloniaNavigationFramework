@@ -1,9 +1,10 @@
-﻿namespace NavTest.Services
+﻿using AvaloniaNavigationFramework.Models;
+
+namespace NavTest.Services
 {
     public interface INavigationAware
     {
-        Task OnNavigatedToAsync(object parameter);
-        Task OnNavigatedFromAsync();
-        Task<bool> CanNavigateAwayAsync();
+        Task OnNavigatedToAsync(NavigationParameters parameters);
+        Task OnNavigatedFromAsync(NavigationParameters parameters);
     }
 }

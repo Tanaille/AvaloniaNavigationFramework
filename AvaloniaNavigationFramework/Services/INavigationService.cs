@@ -1,12 +1,14 @@
 ﻿using Avalonia.Controls;
+using AvaloniaNavigationFramework.Models;
 
 namespace NavTest.Services
 {
     public interface INavigationService
     {
-        Task NavigateAsync(Type viewModelType, CancellationToken cancellationToken = default);
-        Task NavigateAsync(Type viewModelType, object parameter, CancellationToken cancellationToken = default);
-        Task GoBackAsync(CancellationToken cancellationToken = default);
+        Task NavigateAsync(Type viewModelType);
+        Task NavigateAsync(Type viewModelType, NavigationParameters parameters);
+        Task GoBackAsync();
+        Task GoBackAsync(NavigationParameters parameters);
         void Initialize(ContentControl contentControl, IServiceProvider serviceProvider);
     }
 }
