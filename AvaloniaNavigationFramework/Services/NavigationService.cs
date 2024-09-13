@@ -6,20 +6,15 @@ using NavTest.Exceptions;
 
 namespace NavTest.Services
 {
-    public class NavigationService : ObservableObject, INavigationService
+    public partial class NavigationService : ObservableObject, INavigationService
     {
         private readonly Dictionary<Type, Type> _viewModelToViewMappings = new Dictionary<Type, Type>();
         private readonly Stack<NavigationItem> _navigationStack = new Stack<NavigationItem>();
         private ContentControl _contentControl;
         private IServiceProvider _serviceProvider;
 
+        [ObservableProperty]
         private ObservableObject _currentViewModel;
-
-        public ObservableObject CurrentViewModel
-        {
-            get => _currentViewModel;
-            private set => SetProperty(ref _currentViewModel, value);
-        }
 
         public void Initialize(ContentControl contentControl, IServiceProvider serviceProvider)
         {
