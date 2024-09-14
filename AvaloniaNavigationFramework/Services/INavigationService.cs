@@ -10,5 +10,7 @@ namespace NavTest.Services
         Task GoBackAsync();
         Task GoBackAsync(NavigationParameters parameters);
         void Initialize(ContentControl contentControl, IServiceProvider serviceProvider);
+        Task ShowWindowAsync(Type viewModelType, NavigationParameters parameters = null);
+        Task ShowDialogAsync(Type viewModelType, NavigationParameters parameters = null);
     }
 }

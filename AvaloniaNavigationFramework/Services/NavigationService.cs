@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using AvaloniaNavigationFramework.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ namespace NavTest.Services
         private readonly Stack<NavigationItem> _navigationStack = new Stack<NavigationItem>();
         private ContentControl _contentControl;
         private IServiceProvider _serviceProvider;
+        private Window _mainWindow;
 
         [ObservableProperty]
         private ObservableObject _currentViewModel;
@@ -123,6 +126,80 @@ namespace NavTest.Services
             if (_contentControl == null || _serviceProvider == null)
             {
                 throw new NavigationServiceException("NavigationService has not been properly initialized. Make sure Initialize method is called with a valid ContentControl and IServiceProvider.");
+            }
+        }
+
+        public async Task ShowWindowAsync(Type viewModelType, NavigationParameters parameters = null)
+        {
+            EnsureInitialized();
+
+            if (!_viewModelToViewMappings.ContainsKey(viewModelType))
+            {
+                throw new NavigationServiceException($"No view registered for ViewModel type {viewModelType}");
+            }
+
+            try
+            {
+                var viewModel = (ObservableObject)_serviceProvider.GetRequiredService(viewModelType);
+                var windowType = _viewModelToViewMappings[viewModelType];
+                var window = (Window)_serviceProvider.GetRequiredService(windowType);
+
+                if (viewModel is INavigationAware navigationAware)
+                {
+                    await navigationAware.OnNavigatedToAsync(parameters ?? new NavigationParameters());
+                }
+
+                window.DataContext = viewModel;
+
+                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    window.Show();
+                }
+                else
+                {
+                    throw new NavigationServiceException("Unable to show window. ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new NavigationServiceException($"Failed to show window for {viewModelType}", ex);
+            }
+        }
+
+        public async Task ShowDialogAsync(Type viewModelType, NavigationParameters parameters = null)
+        {
+            EnsureInitialized();
+
+            if (!_viewModelToViewMappings.ContainsKey(viewModelType))
+            {
+                throw new NavigationServiceException($"No view registered for ViewModel type {viewModelType}");
+            }
+
+            try
+            {
+                var viewModel = (ObservableObject)_serviceProvider.GetRequiredService(viewModelType);
+                var windowType = _viewModelToViewMappings[viewModelType];
+                var window = (Window)_serviceProvider.GetRequiredService(windowType);
+
+                if (viewModel is INavigationAware navigationAware)
+                {
+                    await navigationAware.OnNavigatedToAsync(parameters ?? new NavigationParameters());
+                }
+
+                window.DataContext = viewModel;
+
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    await window.ShowDialog(desktop.MainWindow);
+                }
+                else
+                {
+                    throw new NavigationServiceException("Unable to get main window. ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new NavigationServiceException($"Failed to show dialog for {viewModelType}", ex);
             }
         }
     }
